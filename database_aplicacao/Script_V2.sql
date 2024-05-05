@@ -183,12 +183,13 @@ CREATE TABLE IF NOT EXISTS atividade (
   );
 
 CREATE TABLE IF NOT EXISTS modulo (
-  fk_curso INT AUTO_INCREMENT NOT NULL,
+  id_modulo INT NOT NULL AUTO_INCREMENT,
+  fk_curso INT NOT NULL,
   fk_atividade INT NOT NULL,
   qtd_atividade_feita INT NOT NULL,
   qtd_atividade_total INT NOT NULL,
   nome_modulo VARCHAR(45),
-  PRIMARY KEY (fk_curso, fk_atividade),
+  PRIMARY KEY (id_modulo, fk_curso, fk_atividade),
   INDEX fk_curso_has_atividade_atividade1_idx (fk_atividade ASC) VISIBLE,
   INDEX fk_curso_has_atividade_curso1_idx (fk_curso ASC) VISIBLE,
   CONSTRAINT fk_curso_has_atividade_curso1
@@ -328,3 +329,27 @@ SELECTS
 SELECT * FROM usuario;
 SELECT * FROM classificacao;
 SELECT * FROM pontuacao;
+SELECT * FROM curso;
+SELECT * FROM inscricao;
+
+-- Exemplo de Select para o gráfico de horas totais do Usuário.
+SELECT Sum(qtd_horas) 
+FROM inscricao 
+JOIN  curso ON fk_curso = id_curso 
+WHERE fk_usuario = 2;
+
+SELECT atividade.nota, modulo.nome_modulo, curso.nome 
+FROM inscricao 
+JOIN curso ON inscricao.fk_curso = curso.id_curso 
+JOIN modulo ON modulo.fk_curso = curso.id_curso 
+JOIN atividade ON fk_atividade = id_atividade
+WHERE fk_usuario= 2;
+
+/* PARA FILTRAR POR CURSO
+SELECT atividade.nota, modulo.nome_modulo, curso.nome 
+FROM inscricao 
+JOIN curso ON inscricao.fk_curso = curso.id_curso 
+JOIN modulo ON modulo.fk_curso = curso.id_curso 
+JOIN atividade ON fk_atividade = id_atividade
+WHERE fk_usuario= 2 AND curso.nome = "Desenvolvimento Web";
+*/
