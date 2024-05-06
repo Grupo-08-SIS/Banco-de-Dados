@@ -5,7 +5,10 @@ USE Tech4All ;
 CREATE TABLE IF NOT EXISTS tipo_ponto (
   id_tipo_ponto INT NOT NULL AUTO_INCREMENT,
   nome VARCHAR(45) NOT NULL,
-  PRIMARY KEY (id_tipo_ponto)
+  fk_curso INT,
+  PRIMARY KEY (id_tipo_ponto),
+  CONSTRAINT tipo_ponto_curso
+  FOREIGN KEY (fk_curso) REFERENCES curso (id_curso)
   );
 
 CREATE TABLE IF NOT EXISTS categoria_curso (
