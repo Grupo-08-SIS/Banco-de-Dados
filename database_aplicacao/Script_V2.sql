@@ -2,14 +2,6 @@
 CREATE DATABASE IF NOT EXISTS Tech4All;
 USE Tech4All ;
 
-CREATE TABLE IF NOT EXISTS tipo_ponto (
-  id_tipo_ponto INT NOT NULL AUTO_INCREMENT,
-  nome VARCHAR(45) NOT NULL,
-  fk_curso INT,
-  PRIMARY KEY (id_tipo_ponto),
-  CONSTRAINT tipo_ponto_curso
-  FOREIGN KEY (fk_curso) REFERENCES curso (id_curso)
-  );
 
 CREATE TABLE IF NOT EXISTS categoria_curso (
   id_categoria_curso INT NOT NULL AUTO_INCREMENT,
@@ -26,32 +18,6 @@ CREATE TABLE IF NOT EXISTS curso (
   INDEX fk_curso_categoria_curso1_idx (fk_categoria_curso ASC) VISIBLE,
   CONSTRAINT fk_curso_categoria_curso1
   FOREIGN KEY (fk_categoria_curso) REFERENCES categoria_curso (id_categoria_curso)
-);
-
-CREATE TABLE IF NOT EXISTS ponto (
-  id_ponto INT NOT NULL AUTO_INCREMENT,
-  qtd_ponto INT NOT NULL,
-  fk_tipo_ponto INT NOT NULL,
-  fk_curso INT NOT NULL,
-  PRIMARY KEY (id_ponto, fk_tipo_ponto),
-  INDEX fk_pontos_tipo_ponto1_idx (fk_tipo_ponto ASC) VISIBLE,
-  INDEX fk_ponto_curso1_idx (fk_curso ASC) VISIBLE,
-  CONSTRAINT fk_pontos_tipo_ponto1
-  FOREIGN KEY (fk_tipo_ponto) REFERENCES tipo_ponto (id_tipo_ponto),
-  CONSTRAINT fk_ponto_curso1
-  FOREIGN KEY (fk_curso) REFERENCES curso (id_curso)
-);
-
-CREATE TABLE IF NOT EXISTS pontuacao (
-  id_pontuacao INT AUTO_INCREMENT NOT NULL,
-  fk_pontos INT NOT NULL,
-  fk_tipo_ponto INT NOT NULL,
-  total_pontos_usuario VARCHAR(60) NULL,
-  data_criacao DATETIME NOT NULL,
-  PRIMARY KEY (id_pontuacao),
-  INDEX fk_pontuacao_pontos1_idx (fk_pontos ASC, fk_tipo_ponto ASC) VISIBLE,
-  CONSTRAINT fk_pontuacao_pontos1
-  FOREIGN KEY (fk_pontos , fk_tipo_ponto) REFERENCES ponto (id_ponto , fk_tipo_ponto)
 );
 
 /*
@@ -77,6 +43,31 @@ CREATE TABLE IF NOT EXISTS tipo_usuario (
 /*
 Permissionamento
 */
+
+
+CREATE TABLE IF NOT EXISTS tipo_ponto (
+  id_tipo_ponto INT NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(45) NOT NULL,
+  fk_curso INT,
+  PRIMARY KEY (id_tipo_ponto),
+  CONSTRAINT tipo_ponto_curso
+  FOREIGN KEY (fk_curso) REFERENCES curso (id_curso)
+  );
+
+
+CREATE TABLE IF NOT EXISTS ponto (
+  id_ponto INT NOT NULL AUTO_INCREMENT,
+  qtd_ponto INT NOT NULL,
+  fk_tipo_ponto INT NOT NULL,
+  fk_curso INT NOT NULL,
+  PRIMARY KEY (id_ponto, fk_tipo_ponto),
+  INDEX fk_pontos_tipo_ponto1_idx (fk_tipo_ponto ASC) VISIBLE,
+  INDEX fk_ponto_curso1_idx (fk_curso ASC) VISIBLE,
+  CONSTRAINT fk_pontos_tipo_ponto1
+  FOREIGN KEY (fk_tipo_ponto) REFERENCES tipo_ponto (id_tipo_ponto),
+  CONSTRAINT fk_ponto_curso1
+  FOREIGN KEY (fk_curso) REFERENCES curso (id_curso)
+);
 
 CREATE TABLE IF NOT EXISTS endereco (
   id_endereco INT AUTO_INCREMENT NOT NULL,
@@ -109,12 +100,25 @@ CREATE TABLE IF NOT EXISTS usuario (
   INDEX fk_usuario_pontuacao1_idx (fk_pontuacao ASC) VISIBLE,
   INDEX fk_usuario_tipo_usuario1_idx (fk_tipo_usuario ASC) VISIBLE,
   INDEX fk_usuario_endereco1_idx (fk_endereco ASC) VISIBLE,
-  CONSTRAINT fk_usuario_pontuacao1
-  FOREIGN KEY (fk_pontuacao) REFERENCES pontuacao (id_pontuacao),
   CONSTRAINT fk_usuario_tipo_usuario1
   FOREIGN KEY (fk_tipo_usuario) REFERENCES tipo_usuario (id_tipo_usuario),
   CONSTRAINT fk_usuario_endereco1
   FOREIGN KEY (fk_endereco) REFERENCES endereco (id_endereco)
+);
+
+CREATE TABLE IF NOT EXISTS pontuacao (
+  id_pontuacao INT AUTO_INCREMENT NOT NULL,
+  fk_pontos INT NOT NULL,
+  fk_tipo_ponto INT NOT NULL,
+  fk_usuario INT NOT NULL,
+  total_pontos_usuario VARCHAR(60) NULL,
+  data_atualizacao DATETIME NOT NULL,
+  PRIMARY KEY (id_pontuacao),
+  INDEX fk_pontuacao_pontos1_idx (fk_pontos ASC, fk_tipo_ponto ASC) VISIBLE,
+  CONSTRAINT fk_pontuacao_pontos1
+  FOREIGN KEY (fk_pontos , fk_tipo_ponto) REFERENCES ponto (id_ponto , fk_tipo_ponto),
+  CONSTRAINT fk_pontuacao_usuario1
+  FOREIGN KEY (fk_usuario) REFERENCES usuario (id_usuario)
 );
 
 CREATE TABLE IF NOT EXISTS redefinicao_senha (
@@ -243,34 +247,48 @@ INSERTS
 INSERT INTO tipo_ponto (nome) VALUES 
 ('Presença'),
 ('Avaliação'),
-('Participação');
+('Participação'),
+('Entrega de Tarefa');
 
 INSERT INTO categoria_curso (nome) VALUES 
 ('Tecnologia da Informação'),
 ('Design Gráfico'),
-('Marketing Digital');
+('Marketing Digital'),
+('Programação');
 
 INSERT INTO curso (nome, qtd_horas, fk_categoria_curso) VALUES 
 ('Desenvolvimento Web', 80, 1),
 ('Photoshop Avançado', 40, 2),
-('Marketing de Conteúdo', 60, 3);
+('Marketing de Conteúdo', 60, 3),
+('Python para Iniciantes', 40, 1),
+('UI/UX Design Essentials', 30, 2);
 
 INSERT INTO ponto (qtd_ponto, fk_tipo_ponto, fk_curso) VALUES 
 (10, 1, 1),
 (20, 2, 2),
-(15, 3, 3); 
+(15, 3, 3),
+(15, 1, 4),
+(25, 2, 5); 
 
 INSERT INTO tipo_acao (Inserir, Deletar, Atualizar) VALUES 
 (1, 1, 1),
-(1,1,1); 
+(1,1,1),
+(1, 0, 1),
+(1, 1, 0),
+(0, 1, 1);
 
 INSERT INTO endereco (estado, cidade, CEP, rua) VALUES 
 ('SP', 'São Paulo', '01000000', 'Avenida Paulista'),
-( 'RJ', 'Rio de Janeiro', '20000000', 'Rua dos Andradas');
+( 'RJ', 'Rio de Janeiro', '20000000', 'Rua dos Andradas'),
+('SP', 'São Paulo', '02000000', 'Avenida Brasil'),
+( 'RJ', 'Rio de Janeiro', '21000000', 'Rua das Flores'),
+('MG', 'Belo Horizonte', '30000000', 'Avenida Getúlio Vargas');
 
 INSERT INTO tipo_usuario (nome, fk_tipo_acao) VALUES
-('Administro', 1),
-('Cliente', 2);
+('Administrador Arrastão', 1),
+('RH Convidado', 2),
+('Professor', 2),
+('Aluno', 3);
 
 /*
  -- Melhor jogar isso para o Back-End
@@ -283,46 +301,61 @@ VALUES (
 );
 */
 
-INSERT INTO pontuacao (fk_pontos, fk_tipo_ponto, total_pontos_usuario, data_criacao) 
-VALUES (1, 1, '100', '2024-04-10 08:00:00');
-
 INSERT INTO usuario (nome_usuario, CPF, senha, primeiro_nome, sobrenome, email, data_criacao, deletado, fk_pontuacao, fk_tipo_usuario, fk_endereco) VALUES 
 ('admin', '12345678901', 'senha_admin', 'Admin', 'Admin', 'admin@example.com', NOW(), 0, 1, 1, 1),
-('usuario1', '98765432101', 'senha_usuario1', 'Usuário', 'Um', 'usuario1@example.com',NOW(), 0, 1, 1, 2);
+('usuario1', '98765432101', 'senha_usuario1', 'Usuário', 'Um', 'usuario1@example.com',NOW(), 0, 1, 1, 2),
+('ana123', '12345678903', 'senha_ana123', 'Ana', 'Silva', 'ana.silva@example.com', NOW(), 0, 3, 2, 2),
+('pedro78', '98765432103', 'senha_pedro78', 'Pedro', 'Oliveira', 'pedro.oliveira@example.com', NOW(), 0, 2, 2, 3);
 
 INSERT INTO redefinicao_senha (codigo_redefinicao, data_criacao, data_expiracao, valido, fk_usuario) VALUES 
-('ABCD1234', NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), 1, 1);
+('ABCD1234', NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), 1, 1),
+('AGOAHOHA', '2024-04-01 08:00:00', '2024-04-02 08:00:00', 0, 2);
 
 INSERT INTO categoria_produto (nome) VALUES 
 ('Eletrônicos'),
 ('Livros'),
-('Roupas');
+('Roupas'),
+('Alimentos'),
+('Brinquedos');
 
 INSERT INTO produto (nome, valor_pontos, descricao, quantidade, disponivel, fk_categoria_produto) VALUES 
 ('Smartphone', 500.00, 'Modelo X', 10, 1, 1),
 ('A Guerra dos Tronos', 150.00, 'Livro da série', 20, 1, 2),
-('Camiseta Preta', 80.00, 'Tamanho M', 30, 1, 3);
+('Camiseta Preta', 80.00, 'Tamanho M', 30, 1, 3),
+('Fone de Ouvido Bluetooth', 200.00, 'Modelo Y', 15, 1, 1),
+('Cesta de Café da Manhã', 100.00, 'Variada', 10, 1, 2),
+('Boneca de Pelúcia', 50.00, 'Tamanho Grande', 20, 1, 3);
 
 INSERT INTO carrinho (fk_usuario, fk_produto, quantidade_produto) VALUES 
 (2, 1, 1), 
 (2, 3, 2); 
 
 INSERT INTO inscricao (fk_usuario, fk_curso, codigo_inscricao) VALUES 
-(2, 1, 'ABCD1234'), 
+(2, 1, 'ABCD1234'),
+(1, 1, 'WXYZ9876'), 
+(1, 2, 'RSTU5432'), 
 (2, 3, 'EFGH5678'); 
 
 INSERT INTO atividade (nota, temp_duracao) VALUES 
 (80, '02:30:00'),
 (90, '01:45:00'),
-(75, '03:00:00');
+(75, '03:00:00'),
+(70, '02:15:00'),
+(85, '01:50:00');
 
 INSERT INTO modulo (fk_curso, fk_atividade, qtd_atividade_feita, qtd_atividade_total, nome_modulo) VALUES 
-(1, 1, 1, 2, 'Módulo 1'),
-(1, 2, 0, 1, 'Módulo 2'),
-(3, 3, 1, 1, 'Módulo 1');
+(1, 1, 1, 2, 'Introdução à Linguagem Python'),
+(1, 2, 0, 1, 'Princípios de Design de Interface'),
+(3, 3, 1, 1, 'Estratégias de Marketing de Conteúdo'),
+(4, 4, 1, 2, 'Lógica de Programação'),
+(5, 5, 0, 1, 'Design Responsivo');
 
-INSERT INTO classificacao (fk_usuario, fk_pontuacao) VALUES 
-(2, 1);
+INSERT INTO pontuacao (fk_pontos, fk_tipo_ponto, fk_usuario, total_pontos_usuario, data_atualizacao) 
+VALUES 
+(1, 1, 1, '100', '2024-04-10 08:00:00'),
+(2, 2, 2, '150', '2024-04-15 10:30:00'),
+(3, 3, 3, '200', '2024-04-20 14:45:00'),
+(4, 1, 4, '180', '2024-04-25 09:15:00');
 
 
 /*
@@ -347,6 +380,14 @@ JOIN curso ON inscricao.fk_curso = curso.id_curso
 JOIN modulo ON modulo.fk_curso = curso.id_curso 
 JOIN atividade ON fk_atividade = id_atividade
 WHERE fk_usuario= 2;
+
+CREATE VIEW classificacao AS
+SELECT
+	id_pontuacao,
+    fk_usuario,
+    fk_ponto,
+    ROW_NUMBER() OVER (PARTITION BY fk_usuario ORDER BY total_pontos_usuario DESC) AS classificacao, total_pontos_usuario
+    FROM pontuacao;
 
 /* PARA FILTRAR POR CURSO
 SELECT atividade.nota, modulo.nome_modulo, curso.nome 
